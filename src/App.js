@@ -1,23 +1,83 @@
 import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+
+function Header(props){
+    return <header>
+      <h1><a href='/' onClick={(event)=>{
+        event.preventDefault();
+        props.onChangeMode();
+      }}>{props.title}</a></h1>
+    </header>
+}
+
+function Nav(props){
+  const lis = []
+  // console.log(props);
+  for(let i=0; i<props.topics.length; i++){
+    let t = props.topics[i];
+    lis.push(<li key={t.id}>
+      <a id={t.id} href={'/read/'+t.id} onClick={event=>{ //파라미터가 하나일 경우에는 괄호 생략 가능
+        event.preventDefault();
+        props.onChangeMode(Number(event.target.id)); //event.target = 이벤트를 유발한 태그
+      }}>{t.title}</a>
+      </li>)
+  }
+
+  return <nav>
+    <ol>
+        {lis}
+    </ol>
+  </nav>
+}
+
+function Article(props){
+ return <article>
+  <h2>{props.title}</h2>
+  {props.body}
+</article>
+}
+
 
 function App() {
+  //const _mode = useState('WELCOME');
+  // const mode = _mode[0];
+  // const setMode = _mode[1];
+  const [mode, setMode] = useState('WELCOME');
+  const [id, setId] = useState(null);
+  //console.log('_mode', _mode);
+  //useState는 배열값을 return 하고 배열 0번째에는 값을 읽을 때 쓰는 데이터이고 1번째는 상태의 값을 변경할 때 사용하는 함수이다
+  //const mode = 'READ';
+  const topics = [
+    {id:1, title:'html', body:'html is...'},
+    {id:2, title:'css', body:'css is...'},
+    {id:3, title:'javascript', body:'javascript is...'}
+  ]
+  let content = null;
+  if(mode === 'WELCOME'){
+    content = <Article title="Welcome" body="Hello, WEB"></Article>
+  }else if(mode === 'READ'){
+    let title, body = null;
+    for(let i=0; i<topics.length; i++){
+      if(topics[i].id === id){
+        title = topics[i].title;
+        body = topics[i].body;
+      }
+    }
+
+    content = <Article title={title} body={body}></Article>
+  }//if end
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header title="WEB" onChangeMode={()=>{
+        //alert('Header');
+        setMode('WELCOME');
+      }}></Header>
+      <Nav topics={topics} onChangeMode={(_id)=>{
+        setMode('READ');
+        setId(_id);
+      }}></Nav>
+      {content}
     </div>
   );
 }
